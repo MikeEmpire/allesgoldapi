@@ -1,7 +1,7 @@
 import json
 import os
 import psycopg2
-from flask import Flask, request, jsonify
+from flask import Flask, request
 from os.path import join, dirname
 from dotenv import load_dotenv
 from psycopg2.extras import RealDictCursor
@@ -35,19 +35,19 @@ def get_p_train_subscribers():
     conn = connect_to_db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     if request.method == 'POST':
-        data = request.json
-        data = jsonify(data)
-        email_to_create = data.email
-        insert_query = """ INSERT INTO p_train_subscribers (email) VALUES {email_to_create} """
+        data = request.json['email']
+        if data is None:
+            return 'Please provide a valid email', 400
+        email_to_create = data
+        insert_query = f""" INSERT INTO p_train_subscribers (email) VALUES ('{email_to_create}') """
         cur.execute(insert_query)
         conn.commit()
         cur.close()
         conn.close()
         return f'Successfully added {email_to_create} to subscriber list', 200
     if request.method == 'PUT':
-        data = request.json
-        data = jsonify(data)
-        email_to_update = data.email
+        data = request.json['email']
+        email_to_update = data
         update_query = """UPDATE
                             p_train_subscribers
                         SET (email)
@@ -84,4 +84,4 @@ def remove_subscriber(subscriber_id):
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', port=8080)

@@ -1,4 +1,4 @@
-from app import connect_to_db
+from application import connect_to_db
 
 conn = connect_to_db()
 

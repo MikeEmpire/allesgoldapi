@@ -2,12 +2,7 @@ import json
 import os
 import psycopg2
 from flask import Flask, request
-from os.path import join, dirname
-from dotenv import load_dotenv
 from psycopg2.extras import RealDictCursor
-
-dotenv_path = join(dirname(__file__), '.env')
-load_dotenv(dotenv_path)
 
 
 app = Flask(__name__)

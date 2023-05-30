@@ -1,0 +1,6 @@
+# .editorconfig
+
+# Format rules for .config files
+[*.config]
+indent_style = space
+indent_size = 2

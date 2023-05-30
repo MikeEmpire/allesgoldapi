@@ -1,8 +1,10 @@
 import json
 import os
 import psycopg2
+import smtplib
 from flask import Flask, request
 from psycopg2.extras import RealDictCursor
+from email.message import EmailMessage
 
 
 app = Flask(__name__)
@@ -12,6 +14,9 @@ db_name = os.environ.get('DB_NAME')
 db_username = os.environ.get('DB_USERNAME')
 db_pwd = os.environ.get('DB_PASSWORD')
 db_port = os.environ.get('DB_PORT')
+email_username = os.environ.get('EMAIL_USERNAME')
+email_password = os.environ.get('EMAIL_PASSWORD')
+destination_email = os.environ.get('DESTINATION_EMAIL')
 
 
 def connect_to_db():
@@ -23,6 +28,28 @@ def connect_to_db():
 @app.route('/')
 def index():
     return 'Live'
+
+
+@app.route('/contact', methods=['POST'])
+def receive_email():
+    # get data and send email to specific email
+    contact_name = request.json['name']
+    contact_email = request.json['email']
+    contact_message = request.json['message']
+
+    email_message = EmailMessage()
+    email_message['subject'] = 'New Contact Message from P Train\'s BBQ Train'
+    email_message['From'] = contact_email
+    email_message['To'] = destination_email
+    email_message.set_content(
+        f"Name: {contact_name}\nEmail: {contact_email}\nMessage: {contact_message}")
+
+    with smtplib.SMTP('smtp.gmail.com', 587) as smtp:
+        smtp.starttls()
+        smtp.login(email_username, email_password)
+        smtp.send_message(email_message)
+
+    return {"message": "success"}, 200
 
 
 @app.route('/subscribers', methods=['POST', 'GET', 'PUT'])
